@@ -7,10 +7,12 @@ WITH diff1s AS (SELECT day02_vals.id, day02_vals.lineno, (day02_vals2.val - day0
      positive_diff2s AS (SELECT lineno, id FROM diff2s WHERE diff2 IN (1, 2, 3)),
      negative_diff2s AS (SELECT lineno, id FROM diff2s WHERE diff2 IN (-1, -2, -3)),
      expected_count AS (SELECT lineno, COUNT(*) AS ecount FROM day02_vals GROUP BY lineno)
-  SELECT * FROM expected_count
+  SELECT COUNT(*) FROM expected_count
              LEFT JOIN positive_diff1_counts ON expected_count.lineno = positive_diff1_counts.lineno
              LEFT JOIN negative_diff1_counts ON expected_count.lineno = negative_diff1_counts.lineno
     WHERE (ecount = pcount + 1)
        OR (ecount = ncount + 1)
        OR (ecount = pcount + 2 AND (SELECT MIN(id) FROM positive_diff1s WHERE id + 1 NOT IN (SELECT id FROM positive_diff1s WHERE lineno = expected_count.lineno) AND lineno = expected_count.lineno) IN (SELECT id FROM positive_diff2s))
-       OR (ecount = ncount + 2 AND (SELECT MIN(id) FROM negative_diff1s WHERE id + 1 NOT IN (SELECT id FROM negative_diff1s WHERE lineno = expected_count.lineno) AND lineno = expected_count.lineno) IN (SELECT id FROM negative_diff2s));
+       OR (ecount = ncount + 2 AND (SELECT MIN(id) FROM negative_diff1s WHERE id + 1 NOT IN (SELECT id FROM negative_diff1s WHERE lineno = expected_count.lineno) AND lineno = expected_count.lineno) IN (SELECT id FROM negative_diff2s))
+       OR (ecount = pcount + 2 AND (SELECT MIN(id) FROM positive_diff1s WHERE id + 1 NOT IN (SELECT id FROM positive_diff1s WHERE lineno = expected_count.lineno) AND id + 1 IN (SELECT id FROM day02_vals WHERE lineno = expected_count.lineno)) IN (SELECT id - 2 FROM day02_vals WHERE lineno != expected_count.lineno))
+       OR (ecount = ncount + 2 AND (SELECT MIN(id) FROM negative_diff1s WHERE id + 1 NOT IN (SELECT id FROM negative_diff1s WHERE lineno = expected_count.lineno) AND id + 1 IN (SELECT id FROM day02_vals WHERE lineno = expected_count.lineno)) IN (SELECT id - 2 FROM day02_vals WHERE lineno != expected_count.lineno));

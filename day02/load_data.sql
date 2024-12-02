@@ -7,6 +7,7 @@ INSERT INTO day02_arrs (val) SELECT arr FROM (
   ) arrs WHERE arr IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS day02_vals (id SERIAL PRIMARY KEY, lineno INTEGER NOT NULL, val INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS day02_lineno ON day02_vals (lineno);
 DELETE FROM day02_vals;
 INSERT INTO day02_vals (lineno, val) SELECT id AS lineno, UNNEST(val)::INTEGER AS val FROM day02_arrs;
 DROP TABLE day02_arrs;
